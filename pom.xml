@@ -11,6 +11,21 @@
   <version>3.12.0-SNAPSHOT</version>
   <name>Javassist</name>
   <url>http://www.javassist.org/</url>
+  <distributionManagement>
+    <!-- use the following if you're not using a snapshot version. -->
+    <repository>
+      <id>tiss</id>
+      <name>Tiss Releases</name>
+      <url>https://tissdev.inso.tuwien.ac.at/nexus/content/repositories/tiss</url>
+    </repository>
+    <!-- use the following if you ARE using a snapshot version. -->
+    <snapshotRepository>
+      <id>tiss-snapshots</id>
+      <name>Tiss Snapshots</name>
+      <url>https://tissdev.inso.tuwien.ac.at/nexus/content/repositories/tiss-snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
   <build>
     <sourceDirectory>src/main/</sourceDirectory>
     <testSourceDirectory>src/test/</testSourceDirectory>
