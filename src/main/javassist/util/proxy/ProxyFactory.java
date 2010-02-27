@@ -168,6 +168,9 @@ public class ProxyFactory {
      * when generating the proxy class with the same properties is requested.
      * The default value is true.
      *
+     *
+     * Be carefull with using the cache, since this may cause permgen space loss.
+     *
      * @since 3.4
      */
     public static boolean useCache = true; 
@@ -179,24 +182,26 @@ public class ProxyFactory {
         MethodFilter filter;
         private int hash;
         WeakReference proxyClass;
-        MethodHandler handler;
 
         public CacheKey(Class superClass, Class[] interfaces,
-                        MethodFilter f, MethodHandler h)
+                        MethodFilter f)
         {
             classes = getKey(superClass, interfaces);
             hash = classes.hashCode();
             filter = f;
-            handler = h;
             proxyClass = null;
         }
 
+        /**
+         * be careful!, the hash is only calculated over the classes
+         * @return hashCode
+         */
         public int hashCode() { return hash; }
 
         public boolean equals(Object obj) {
             if (obj instanceof CacheKey) {
                 CacheKey target = (CacheKey)obj;
-                return target.filter == filter && target.handler == handler
+                return target.filter == filter
                        && target.classes.equals(classes);
             }
             else
@@ -283,7 +288,7 @@ public class ProxyFactory {
     }
 
     private void createClass2(ClassLoader cl) {
-        CacheKey key = new CacheKey(superClass, interfaces, methodFilter, handler);
+        CacheKey key = new CacheKey(superClass, interfaces, methodFilter);
         /*
          * Excessive concurrency causes a large memory footprint and slows the
          * execution speed down (with JDK 1.5).  Thus, we use a jumbo lock for
