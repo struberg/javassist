@@ -33,6 +33,7 @@ class SerializedProxy implements Serializable {
     private String[] interfaces;
     private MethodFilter filter;
     private MethodHandler handler;
+    private String proxyClassName;
 
     SerializedProxy(Class proxy, MethodFilter f, MethodHandler h) {
         filter = f;
@@ -47,6 +48,7 @@ class SerializedProxy implements Serializable {
             if (!name.equals(setterInf))
                 interfaces[i] = name;
         }
+        proxyClassName = proxy.getName();
     }
 
     /**
@@ -77,12 +79,26 @@ class SerializedProxy implements Serializable {
             for (int i = 0; i < n; i++)
                 infs[i] = loadClass(interfaces[i]);
 
-            ProxyFactory f = new ProxyFactory();
-            f.setSuperclass(loadClass(superClass));
-            f.setInterfaces(infs);
-            f.setFilter(filter);
-            f.setHandler(handler);
-            return f.createClass().newInstance();
+            Class proxyClass = null;
+            try {
+                proxyClass = Class.forName(proxyClassName);
+            } catch (ClassNotFoundException cnf) {
+                // this means the original class is not available in this VM yet
+                // and we will need to first create it via the ProxyFactory
+            }
+            
+            if (proxyClass == null) {
+                ProxyFactory f = new ProxyFactory();
+                f.setSuperclass(loadClass(superClass));
+                f.setInterfaces(infs);
+                f.setFilter(filter);
+                proxyClass = f.createClass();
+            }
+            Object proxyInstance = proxyClass.newInstance();
+
+            ((ProxyObject)proxyInstance).setHandler(handler);
+
+            return proxyInstance;
         }
         catch (ClassNotFoundException e) {
             throw new java.io.InvalidClassException(e.getMessage());
