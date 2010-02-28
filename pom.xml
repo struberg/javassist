@@ -11,14 +11,15 @@
   <version>3.12.0-SNAPSHOT</version>
   <name>Javassist</name>
   <url>http://www.javassist.org/</url>
+    
   <distributionManagement>
-    <!-- use the following if you're not using a snapshot version. -->
+    <!-- use the following if you're not using a snapshot version. TODO: switch to JBoss repo -->
     <repository>
       <id>tiss</id>
       <name>Tiss Releases</name>
       <url>https://tissdev.inso.tuwien.ac.at/nexus/content/repositories/tiss</url>
     </repository>
-    <!-- use the following if you ARE using a snapshot version. -->
+    <!-- use the following if you ARE using a snapshot version. TODO: switch to JBoss repo -->
     <snapshotRepository>
       <id>tiss-snapshots</id>
       <name>Tiss Snapshots</name>

@@ -34,6 +34,7 @@ public class ProxyFactoryTest extends TestCase {
     public void testSerialize() throws Exception {
         ProxyFactory fact = new ProxyFactory();
         fact.setSuperclass(MyCls.class);
+        fact.setInterfaces(new Class[]{MyInterface.class});
 
         Class proxyClass = fact.createClass();
 

@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * <a href="mailto:struberg@yahoo.de">Mark Struberg</a>
  */
-public class MyCls implements Serializable {
+public class MyCls implements MyInterface, Serializable {
 
     private int i,j;
 
