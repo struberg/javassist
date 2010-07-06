@@ -31,12 +31,11 @@ import java.security.ProtectionDomain;
 class SerializedProxy implements Serializable {
     private String superClass;
     private String[] interfaces;
-    private MethodFilter filter;
+    private byte[] filterSignature;
     private MethodHandler handler;
-    private String proxyClassName;
 
-    SerializedProxy(Class proxy, MethodFilter f, MethodHandler h) {
-        filter = f;
+    SerializedProxy(Class proxy, byte[] sig, MethodHandler h) {
+        filterSignature = sig;
         handler = h;
         superClass = proxy.getSuperclass().getName();
         Class[] infs = proxy.getInterfaces();
@@ -48,7 +47,6 @@ class SerializedProxy implements Serializable {
             if (!name.equals(setterInf))
                 interfaces[i] = name;
         }
-        proxyClassName = proxy.getName();
     }
 
     /**
@@ -76,47 +74,15 @@ class SerializedProxy implements Serializable {
         try {
             int n = interfaces.length;
             Class[] infs = new Class[n];
-            for (int i = 0; i < n; i++) {
+            for (int i = 0; i < n; i++)
                 infs[i] = loadClass(interfaces[i]);
-            }
 
-            Class proxyClass = null;
-            try {
-                proxyClass = loadClass(proxyClassName);
-
-                // we need to check if we really got the correct javassist class
-                // if we got deserialized on another VM, then the same javassist
-                // classname may in theory already have been used for another proxy.
-
-                // so first check if all interfaces are implemented
-                for (int i = 0; i < n; i++) {
-                    if (! infs[i].isAssignableFrom(proxyClass)) {
-                        proxyClass = null;
-                        break;
-                    }
-                }
-
-                // and if it is for the right superclass of course (paranoid mode)
-                if (! loadClass(superClass).isAssignableFrom(proxyClass)) {
-                    proxyClass = null;
-                }
-            } catch (ClassNotFoundException cnf) {
-                // this means the original class is not available in this VM yet
-                // and we will need to first create it via the ProxyFactory
-            }
-            
-            if (proxyClass == null) {
-                ProxyFactory f = new ProxyFactory();
-                f.setSuperclass(loadClass(superClass));
-                f.setInterfaces(infs);
-                f.setFilter(filter);
-                proxyClass = f.createClass();
-            }
-            Object proxyInstance = proxyClass.newInstance();
-
-            ((ProxyObject)proxyInstance).setHandler(handler);
-
-            return proxyInstance;
+            ProxyFactory f = new ProxyFactory();
+            f.setSuperclass(loadClass(superClass));
+            f.setInterfaces(infs);
+            ProxyObject proxy = (ProxyObject)f.createClass(filterSignature).newInstance();
+            proxy.setHandler(handler);
+            return proxy;
         }
         catch (ClassNotFoundException e) {
             throw new java.io.InvalidClassException(e.getMessage());

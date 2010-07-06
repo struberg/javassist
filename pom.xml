@@ -1,35 +1,113 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <groupId>javassist</groupId>
   <artifactId>javassist</artifactId>
   <packaging>jar</packaging>
-  <description>Javassist (JAVA programming ASSISTant) makes Java bytecode manipulation
-     simple.  It is a class library for editing bytecodes in Java.
+
+  <description>
+    Javassist (JAVA programming ASSISTant) makes Java bytecode manipulation
+    simple.  It is a class library for editing bytecodes in Java.
   </description>
-  <version>3.12.0-SNAPSHOT</version>
+
+  <version>3.12.2-SNAPSHOT</version>
   <name>Javassist</name>
   <url>http://www.javassist.org/</url>
-    
+
+  <issueManagement>
+    <system>JIRA</system>
+    <url>https://jira.jboss.org/jira/browse/JASSIST/</url>
+  </issueManagement>
+  <licenses>
+    <!--
+      this is the license under which javassist is usually distributed
+    -->
+    <license>
+      <name>MPL 1.1</name>
+      <url>http://www.mozilla.org/MPL/MPL-1.1.html</url>
+    </license>
+    <!--
+      this is the license under which javassist is distributed when
+      it is bundled with JBoss
+    -->
+    <license>
+      <name>LGPL 2.1</name>
+      <url>http://www.gnu.org/licenses/lgpl-2.1.html</url>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/javassist/</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/javassist/</developerConnection>
+    <url>http://fisheye.jboss.org/browse/javassist/</url>
+  </scm>
+
+  <developers>
+    <developer>
+      <id>chiba</id>
+      <name>Shigeru Chiba</name>
+      <email>chiba@acm.org</email>
+      <organization>Tokyo Institute Of Technology</organization>
+      <organizationUrl>http://www.csg.is.titech.ac.jp/</organizationUrl>
+      <roles>
+        <role>project lead</role>
+      </roles>
+      <timezone>8</timezone>
+    </developer>
+
+    <developer>
+      <id>adinn</id>
+      <name>Andrew Dinn</name>
+      <email>adinn@redhat.com</email>
+      <organization>JBoss</organization>
+      <organizationUrl>http://www.jboss.org/</organizationUrl>
+      <roles>
+        <role>contributing developer</role>
+      </roles>
+      <timezone>0</timezone>
+    </developer>
+  </developers>
+
   <distributionManagement>
-    <!-- use the following if you're not using a snapshot version. TODO: switch to JBoss repo -->
+  <!--  
+      You need entries in your .m2/settings.xml like this:
+   <servers>
+    <server>
+       <id>jboss-releases-repository</id>
+       <username>your_jboss.org_username</username>
+       <password>password</password>
+    </server>
+    <server>
+       <id>jboss-snapshots-repository</id>
+       <username>your_jboss.org_username</username>
+       <password>password</password>
+    </server>
+  </servers>
+  
+  To deploy a snapshot, you need to run
+  
+  mvn deploy -Dversion=3.x.y-SNAPSHOT
+
+  To deploy a release you need to change the version to 3.x.y.GA and run
+
+  mvn deploy
+    -->
     <repository>
-      <id>tiss</id>
-      <name>Tiss Releases</name>
-      <url>https://tissdev.inso.tuwien.ac.at/nexus/content/repositories/tiss</url>
+      <id>jboss-releases-repository</id>
+      <name>JBoss Releases Repository</name>
+      <url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</url>
     </repository>
-    <!-- use the following if you ARE using a snapshot version. TODO: switch to JBoss repo -->
     <snapshotRepository>
-      <id>tiss-snapshots</id>
-      <name>Tiss Snapshots</name>
-      <url>https://tissdev.inso.tuwien.ac.at/nexus/content/repositories/tiss-snapshots</url>
+      <id>jboss-snapshots-repository</id>
+      <name>JBoss Snapshots Repository</name>
+      <url>https://repository.jboss.org/nexus/content/repositories/snapshots/</url>
     </snapshotRepository>
   </distributionManagement>
 
   <build>
     <sourceDirectory>src/main/</sourceDirectory>
     <testSourceDirectory>src/test/</testSourceDirectory>
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -48,13 +126,78 @@
           </archive>
         </configuration>
       </plugin>
+
+      <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.0.3</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+        <inherited>true</inherited>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.3.1</version>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Specification-Title>${project.name}</Specification-Title>
+              <Specification-Version>${project.version}</Specification-Version>
+              <Specification-Vendor>${project.organization.name}</Specification-Vendor>
+              <Implementation-Title>${project.name}</Implementation-Title>
+              <Implementation-Version>${project.version}</Implementation-Version>
+              <Implementation-Vendor>Shigeru Chiba, Tokyo Institute of Technology</Implementation-Vendor>
+            </manifestEntries>
+            <!-- Adding Manifest File -->
+            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+          </archive>
+        </configuration>
+      </plugin>
+        
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>2.1.0</version>
+        <executions>
+          <execution>
+            <id>bundle-manifest</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>manifest</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <supportedProjectTypes>
+            <supportedProjectType>jar</supportedProjectType>
+            <supportedProjectType>bundle</supportedProjectType>
+            <supportedProjectType>war</supportedProjectType>
+          </supportedProjectTypes>
+          <instructions>
+            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+            <Bundle-Version>${project.version}</Bundle-Version>
+            <Export-Package>javassist.*;version="${project.version}"</Export-Package>
+          </instructions>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
+
   <profiles>
     <profile>
       <id>jdk14</id>
       <activation>
         <jdk>1.4</jdk>
+        <property>
+           <name>!no.tools</name>
+        </property>
       </activation>
       <dependencies>
         <dependency>
@@ -71,6 +214,9 @@
       <id>jdk15</id>
       <activation>
         <jdk>1.5</jdk>
+        <property>
+           <name>!no.tools</name>
+        </property>
       </activation>
       <dependencies>
         <dependency>
@@ -87,6 +233,9 @@
       <id>jdk16</id>
       <activation>
         <jdk>1.6</jdk>
+        <property>
+           <name>!no.tools</name>
+        </property>
       </activation>
       <dependencies>
         <dependency>
@@ -100,6 +249,7 @@
       </dependencies>
     </profile>
   </profiles>
+    
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
