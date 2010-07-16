@@ -183,7 +183,8 @@
           <instructions>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
             <Bundle-Version>${project.version}</Bundle-Version>
-            <Export-Package>javassist.*;version="${project.version}"</Export-Package>
+            <Import-Package>!com.sun.jdi.*</Import-Package>
+            <Export-Package>!com.sun.jdi.*,javassist.*;version="${project.version}"</Export-Package>
           </instructions>
         </configuration>
       </plugin>
